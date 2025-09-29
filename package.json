@@ -1,1 +1,14 @@
-
+{
+  "name": "assistant-site",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "express-session": "^1.17.3",
+    "ejs": "^3.1.9"
+  }
+}
