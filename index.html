@@ -1,0 +1,334 @@
+import React, { useState, useEffect } from 'react';
+import { Send, LogOut, User, Menu, X, Trash2 } from 'lucide-react';
+
+const AssistantApp = () => {
+  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([
+    { id: 1, username: 'admin', password: 'admin123', role: 'admin' }
+  ]);
+  const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [showUserManagement, setShowUserManagement] = useState(false);
+  const [newUser, setNewUser] = useState({ username: '', password: '', role: 'user' });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    const savedUsers = JSON.parse(localStorage.getItem('users') || 'null');
+    if (savedUsers) setUsers(savedUsers);
+    const savedMessages = JSON.parse(localStorage.getItem('messages') || '[]');
+    setMessages(savedMessages);
+  }, []);
+
+  const handleLogin = () => {
+    const foundUser = users.find(u => u.username === loginData.username && u.password === loginData.password);
+    if (foundUser) {
+      setUser(foundUser);
+      setLoginData({ username: '', password: '' });
+    } else {
+      alert('Identifiants incorrects');
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setMobileMenuOpen(false);
+  };
+
+  const addUser = () => {
+    if (!newUser.username || !newUser.password) {
+      alert('Tous les champs sont requis');
+      return;
+    }
+    const userExists = users.some(u => u.username === newUser.username);
+    if (userExists) {
+      alert('Ce nom d\'utilisateur existe déjà');
+      return;
+    }
+    const updatedUsers = [...users, { ...newUser, id: Date.now() }];
+    setUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    setNewUser({ username: '', password: '', role: 'user' });
+  };
+
+  const deleteUser = (id) => {
+    if (id === 1) {
+      alert('Impossible de supprimer le compte admin principal');
+      return;
+    }
+    const updatedUsers = users.filter(u => u.id !== id);
+    setUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+  };
+
+  const analyzeIntent = (text) => {
+    const lower = text.toLowerCase();
+    
+    if (lower.includes('code') || lower.includes('créer') || lower.includes('faire') || 
+        lower.includes('bot discord') || lower.includes('site web') || lower.includes('html') || 
+        lower.includes('css') || lower.includes('javascript') || lower.includes('python') ||
+        lower.includes('react') || lower.includes('fonction') || lower.includes('script')) {
+      return 'code';
+    }
+    
+    if (lower.includes('image') || lower.includes('génère') || lower.includes('dessine') || 
+        lower.includes('photo') || lower.includes('illustration') || lower.includes('logo')) {
+      return 'image';
+    }
+    
+    if (lower.includes('cours') || lower.includes('leçon') || lower.includes('apprend') || 
+        lower.includes('explique') || lower.includes('c\'est quoi') || lower.includes('mathématique') ||
+        lower.includes('physique') || lower.includes('chimie') || lower.includes('français') ||
+        lower.includes('histoire') || lower.includes('géographie') || lower.includes('svt') ||
+        lower.includes('biologie') || lower.includes('théorème') || lower.includes('formule') ||
+        lower.includes('équation') || lower.includes('fonction') || lower.includes('devoir')) {
+      return 'cours';
+    }
+    
+    return 'general';
+  };
+
+  const generateResponse = (userInput, intent) => {
+    const lower = userInput.toLowerCase();
+    
+    if (intent === 'code') {
+      if (lower.includes('bot discord')) {
+        return `💻 Bot Discord\n\nVoici un exemple de bot Discord fonctionnel :\n\nconst Discord = require('discord.js');\nconst client = new Discord.Client({\n  intents: ['Guilds', 'GuildMessages', 'MessageContent']\n});\n\nconst PREFIX = '!';\n\nclient.on('ready', () => {\n  console.log('Bot connecté : ' + client.user.tag);\n});\n\nclient.on('messageCreate', message => {\n  if (message.author.bot) return;\n  \n  if (message.content.startsWith(PREFIX + 'ping')) {\n    message.reply('🏓 Pong!');\n  }\n  \n  if (message.content.startsWith(PREFIX + 'hello')) {\n    message.reply('Salut ' + message.author.username + '! 👋');\n  }\n});\n\nclient.login('TON_TOKEN_ICI');\n\nInstallation :\nnpm install discord.js\nnode bot.js\n\nPour le token : Va sur Discord Developer Portal > New Application > Bot > Copy Token`;
+      }
+      
+      if (lower.includes('site') || lower.includes('page web') || lower.includes('html')) {
+        return `🌐 Site Web Moderne\n\nVoici un template de site complet :\n\n<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Mon Site</title>\n  <style>\n    * { margin: 0; padding: 0; box-sizing: border-box; }\n    body {\n      font-family: 'Arial', sans-serif;\n      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n      min-height: 100vh;\n      display: flex;\n      justify-content: center;\n      align-items: center;\n    }\n    .container {\n      background: rgba(255,255,255,0.1);\n      backdrop-filter: blur(10px);\n      padding: 40px;\n      border-radius: 20px;\n      box-shadow: 0 8px 32px rgba(0,0,0,0.3);\n      text-align: center;\n      color: white;\n    }\n    h1 { font-size: 3em; margin-bottom: 20px; }\n    button {\n      background: white;\n      color: #667eea;\n      border: none;\n      padding: 15px 30px;\n      font-size: 1.2em;\n      border-radius: 50px;\n      cursor: pointer;\n      transition: transform 0.3s;\n    }\n    button:hover { transform: scale(1.1); }\n  </style>\n</head>\n<body>\n  <div class="container">\n    <h1>🚀 Bienvenue !</h1>\n    <p>Mon site super cool</p>\n    <button onclick="alert('Hello!')">Clique-moi</button>\n  </div>\n</body>\n</html>\n\nÇa crée un site moderne avec effet glassmorphism ! 🎨`;
+      }
+      
+      if (lower.includes('python')) {
+        return `🐍 Script Python\n\nVoici un exemple adapté à ta demande :\n\nimport os\nimport time\nfrom datetime import datetime\n\ndef main():\n    print("🚀 Script démarré !\\n")\n    \n    def saluer(nom):\n        heure = datetime.now().hour\n        if heure < 12:\n            return f"☀️ Bonjour {nom}!"\n        elif heure < 18:\n            return f"🌤️ Bon après-midi {nom}!"\n        else:\n            return f"🌙 Bonsoir {nom}!"\n    \n    nom = input("Ton nom : ")\n    print(saluer(nom))\n    \n    for i in range(5, 0, -1):\n        print(f"⏰ {i}...")\n        time.sleep(1)\n    \n    print("✅ Terminé!\\n")\n\nif __name__ == "__main__":\n    main()\n\nExécution : python script.py`;
+      }
+      
+      return `💻 Code Personnalisé\n\nconst maFonction = () => {\n  console.log('✨ Fonction créée!');\n  \n  let data = [];\n  \n  const processData = (input) => {\n    return input.map(item => item * 2);\n  };\n  \n  return {\n    success: true,\n    message: 'Opération réussie',\n    data: processData(data)\n  };\n};\n\nconst result = maFonction();\nconsole.log(result);\n\nDis-moi exactement ce que tu veux faire pour un code plus précis ! 🎯`;
+    }
+    
+    if (intent === 'image') {
+      const subject = userInput.replace(/génère|crée|fais|image|photo|de|un|une/gi, '').trim();
+      return `🎨 Génération d'Image : ${subject}\n\n🖼️ Prompt optimisé pour DALL-E / Midjourney :\n"A highly detailed digital illustration of ${subject}, professional photography, 8k resolution, cinematic lighting, vibrant colors, trending on artstation"\n\n📝 Prompts alternatifs :\n1. "${subject}, digital art, fantasy style, epic composition"\n2. "${subject}, photorealistic, studio lighting, high quality"\n3. "${subject}, concept art, detailed, colorful"\n\n🔧 APIs Gratuites pour générer l'image :\n\n1. Hugging Face (Stable Diffusion) :\nimport requests\n\nAPI_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2"\nheaders = {"Authorization": "Bearer TON_TOKEN"}\n\ndef generate_image(prompt):\n    response = requests.post(API_URL, headers=headers, json={"inputs": prompt})\n    with open("image.png", "wb") as f:\n        f.write(response.content)\n\ngenerate_image("${subject}, detailed, 4k")\n\n2. Via site web gratuit :\n• Craiyon.com (gratuit)\n• Leonardo.ai (15 crédits/jour)\n• Playground AI (gratuit)\n\nVa sur un de ces sites et colle le prompt ! 🚀`;
+    }
+    
+    if (intent === 'cours') {
+      if (lower.includes('math')) {
+        if (lower.includes('fonction') || lower.includes('second degré') || lower.includes('équation')) {
+          return `📐 Cours : Fonctions du Second Degré (Seconde)\n\n📌 Définition :\nUne fonction du second degré (ou trinôme) est de la forme :\nf(x) = ax² + bx + c où a ≠ 0\n\n🎯 Forme canonique :\nf(x) = a(x - α)² + β\n\nAvec :\n• α = -b/(2a) (abscisse du sommet)\n• β = f(α) (ordonnée du sommet)\n\n📊 Variations :\n• Si a > 0 : parabole tournée vers le haut ⤴️\n  - Minimum en (α, β)\n• Si a < 0 : parabole tournée vers le bas ⤵️\n  - Maximum en (α, β)\n\n🔍 Discriminant Δ (Delta) :\nΔ = b² - 4ac\n\n• Δ > 0 → 2 solutions : x₁ = (-b-√Δ)/(2a) et x₂ = (-b+√Δ)/(2a)\n• Δ = 0 → 1 solution : x = -b/(2a)\n• Δ < 0 → Pas de solution réelle\n\n💡 Exemple :\nRésoudre : x² - 5x + 6 = 0\n\na=1, b=-5, c=6\nΔ = (-5)² - 4(1)(6) = 25 - 24 = 1\nΔ > 0 → 2 solutions\n\nx₁ = (5-1)/2 = 2\nx₂ = (5+1)/2 = 3\n\nSolutions : {2 ; 3} ✅\n\n📝 À retenir :\n• Toujours calculer Δ d'abord\n• Le sommet donne le point remarquable\n• La factorisation : a(x-x₁)(x-x₂) si Δ ≥ 0`;
+        }
+        
+        return `📐 Mathématiques - Niveau Seconde\n\nChapitres principaux :\n\n1️⃣ Fonctions\n• Définition et notation f(x)\n• Ensemble de définition\n• Tableau de variations\n• Fonctions affines : f(x) = ax + b\n• Fonctions du second degré : f(x) = ax² + bx + c\n\n2️⃣ Équations\n• Équations du 1er degré\n• Équations du 2nd degré (discriminant Δ)\n• Systèmes d'équations\n\n3️⃣ Vecteurs\n• Définition et notation\n• Coordonnées d'un vecteur\n• Addition et multiplication par un scalaire\n• Colinéarité\n\n4️⃣ Géométrie\n• Théorème de Pythagore\n• Trigonométrie (sin, cos, tan)\n• Angles et cercles\n\n💡 Sur quel chapitre veux-tu un cours détaillé ?`;
+      }
+      
+      if (lower.includes('physique') || lower.includes('chimie')) {
+        return `⚛️ Physique-Chimie - Niveau Seconde\n\nPHYSIQUE 🔬\n\n1️⃣ Mécanique\n• Mouvement et vitesse : v = d/t\n• Accélération\n• Principe d'inertie (1ère loi de Newton)\n• Forces et interactions\n\n2️⃣ Électricité\n• Tension électrique (U en Volts)\n• Intensité (I en Ampères)\n• Loi d'Ohm : U = R × I\n• Circuits en série et parallèle\n• Puissance : P = U × I (en Watts)\n\nCHIMIE 🧪\n\n1️⃣ Atomes et Molécules\n• Structure de l'atome (protons, neutrons, électrons)\n• Numéro atomique Z\n• Masse atomique A\n• Formules chimiques : H₂O, CO₂, etc.\n\n2️⃣ Transformations Chimiques\n• Réactifs → Produits\n• Conservation de la masse\n• Équations chimiques à équilibrer\n\n3️⃣ Solutions Aqueuses\n• Concentration (mol/L)\n• Dilution : C₁V₁ = C₂V₂\n• pH (acide < 7 < basique)\n\n💡 Formules essentielles :\n• v = d/t (vitesse)\n• U = R × I (loi d'Ohm)\n• P = U × I (puissance)\n• E = m × g × h (énergie potentielle)\n\nQuel chapitre détailler ? 🎯`;
+      }
+      
+      if (lower.includes('français')) {
+        return `📚 Français - Niveau Seconde\n\n1️⃣ Analyse de Texte\n\nLes figures de style :\n• Métaphore : comparaison sans "comme"\n  Ex: "Sa voix est du miel" 🍯\n• Comparaison : avec "comme", "tel que"\n  Ex: "Doux comme un agneau"\n• Personnification : donner vie à un objet\n  Ex: "Le vent hurle"\n• Hyperbole : exagération\n  Ex: "Mourir de rire"\n\n2️⃣ Les Types de Textes\n• Narratif : raconte une histoire\n• Descriptif : décrit (lieux, personnes)\n• Argumentatif : convainc, débat\n• Explicatif : informe, explique\n\n3️⃣ Grammaire\n\nClasses grammaticales :\n• Nom, verbe, adjectif, adverbe\n• Pronom, déterminant, préposition\n• Conjonction, interjection\n\nConjugaison importante :\n• Présent, imparfait, passé simple\n• Futur, conditionnel\n• Subjonctif (il faut que je...)\n\n4️⃣ Méthodologie\n\nCommentaire composé :\n1. Introduction (amorce, présentation, problématique)\n2. Développement (2-3 parties)\n3. Conclusion (bilan + ouverture)\n\nDissertation :\n1. Thèse\n2. Antithèse\n3. Synthèse\n\n💡 Astuce : Toujours citer le texte entre guillemets ! 📝`;
+      }
+      
+      return `🎓 Cours Niveau Seconde\n\nJe peux t'aider dans toutes les matières :\n\n📐 Mathématiques\n• Fonctions, équations, géométrie\n\n⚛️ Physique-Chimie\n• Mécanique, électricité, atomes\n\n📚 Français\n• Analyse littéraire, grammaire\n\n🌍 Histoire-Géo\n• Événements, cartes, dates\n\n🧬 SVT\n• Biologie, géologie, écosystèmes\n\nPose-moi une question précise sur un chapitre ! 💡\nExemple : "Explique-moi les fonctions du second degré"`;
+    }
+    
+    return `Je suis là pour t'aider ! 😊\n\n✨ Je peux :\n• 📚 T'expliquer des cours (maths, physique, français...)\n• 💻 Coder tes projets (sites, bots Discord, Python...)\n• 🎨 Te donner des prompts pour générer des images\n• 💡 Répondre à tes questions\n\nExemples de questions :\n• "Explique-moi les équations du second degré"\n• "Code-moi un bot Discord avec commande !ping"\n• "Génère une image de dragon futuriste"\n• "Crée un site web moderne"\n\nTa question : "${userInput}"\n\nPeux-tu être plus précis sur ce que tu veux ? 🎯`;
+  };
+
+  const sendMessage = () => {
+    if (!input.trim()) return;
+
+    const userMessage = { role: 'user', content: input };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    
+    const currentInput = input;
+    setInput('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const intent = analyzeIntent(currentInput);
+      const botResponse = generateResponse(currentInput, intent);
+      
+      const botMessage = { role: 'assistant', content: botResponse };
+      const finalMessages = [...updatedMessages, botMessage];
+      setMessages(finalMessages);
+      localStorage.setItem('messages', JSON.stringify(finalMessages));
+      setIsTyping(false);
+    }, 1000);
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+    localStorage.setItem('messages', JSON.stringify([]));
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (user) {
+        sendMessage();
+      } else {
+        handleLogin();
+      }
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 flex items-center justify-center p-4">
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md border border-white/20 shadow-2xl">
+          <div className="text-center mb-6">
+            <div className="text-6xl mb-4">🤖</div>
+            <h1 className="text-3xl font-bold text-white">Mon Assistant IA</h1>
+            <p className="text-white/60 mt-2">Connexion requise</p>
+          </div>
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Nom d'utilisateur"
+              value={loginData.username}
+              onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+              onKeyPress={handleKeyPress}
+              className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={loginData.password}
+              onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+              onKeyPress={handleKeyPress}
+              className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <button onClick={handleLogin} className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition shadow-lg">
+              Se connecter
+            </button>
+          </div>
+          <p className="text-white/60 text-sm mt-4 text-center">Compte par défaut: admin / admin123</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 flex flex-col">
+      <header className="bg-white/10 backdrop-blur-lg border-b border-white/20 p-4 shadow-lg">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">🤖</div>
+            <div>
+              <h1 className="text-xl font-bold text-white">Assistant IA</h1>
+              <p className="text-white/60 text-xs">Intelligent & Polyvalent</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-white/80 text-sm hidden sm:inline">{user.username}</span>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="sm:hidden text-white p-2">
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <button onClick={handleLogout} className="hidden sm:flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+              <LogOut size={18} />
+            </button>
+          </div>
+        </div>
+        
+        {mobileMenuOpen && (
+          <div className="sm:hidden mt-4 space-y-2">
+            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition">
+              <LogOut size={18} />
+              Déconnexion
+            </button>
+            {user.role === 'admin' && (
+              <button onClick={() => { setShowUserManagement(!showUserManagement); setMobileMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                <User size={18} />
+                {showUserManagement ? 'Chat' : 'Gérer Utilisateurs'}
+              </button>
+            )}
+          </div>
+        )}
+      </header>
+
+      {user.role === 'admin' && showUserManagement ? (
+        <div className="flex-1 p-4 overflow-y-auto">
+          <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Gestion des Utilisateurs</h2>
+              <button onClick={() => setShowUserManagement(false)} className="hidden sm:block bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition">
+                Retour au Chat
+              </button>
+            </div>
+
+            <div className="bg-white/5 p-4 rounded-lg mb-6">
+              <h3 className="text-white font-semibold mb-3">Ajouter un utilisateur</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  placeholder="Nom d'utilisateur"
+                  value={newUser.username}
+                  onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+                  className="px-3 py-2 rounded bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                <input
+                  type="password"
+                  placeholder="Mot de passe"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                  className="px-3 py-2 rounded bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+                <button onClick={addUser} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded transition">
+                  Ajouter
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {users.map(u => (
+                <div key={u.id} className="bg-white/5 p-4 rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="text-white font-semibold">{u.username}</p>
+                    <p className="text-white/60 text-sm">{u.role === 'admin' ? 'Admin' : 'Utilisateur'}</p>
+                  </div>
+                  {u.id !== 1 && (
+                    <button onClick={() => deleteUser(u.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition flex items-center gap-1">
+                      <Trash2 size={14} />
+                      Supprimer
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-4xl mx-auto space-y-4 pb-4">
+              {messages.length === 0 ? (
+                <div className="text-center text-white mt-20">
+                  <div className="text-6xl mb-6">✨</div>
+                  <h2 className="text-3xl font-bold mb-4">Bonjour {user.username} !</h2>
+                  <p className="text-white/70 text-lg mb-8">Je suis ton assistant personnel intelligent</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+                    <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20">
+                      <div className="text-4xl mb-3">📚</div>
+                      <h3 className="font-bold mb-2">Cours & Leçons</h3>
+                      <p className="text-sm text-white/70">Explications niveau Seconde</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20">
+                      <div className="text-4xl mb-3">💻</div>
+                      <h3 className="font-bold mb-2">Code & Dev</h3>
+                      <p className="text-sm text-white/70">Sites, bots, scripts...</p>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl border border-white/20">
+                      <div className="text-4xl mb-3">🎨</div>
+                      <h3 className="font-bold mb-2">Images IA</h3>
+                      <p className="text-sm text-white/70">Prompts optimisés</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 text-white/60">
+                    <p className="mb-2">💡 Exemples de questions :</p>
+                    <div className="space-y-1 text-sm">
+                      <p>• "Explique-moi les fon
