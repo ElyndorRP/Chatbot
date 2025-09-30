@@ -3,90 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mega Assistant Lycée + Quiz</title>
+<title>Mega Assistant Lycée Ultime</title>
 <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#eee;
-  margin:0;
-  padding:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
-#app {
-  width:95%;
-  max-width:1000px;
-  background: rgba(30,30,30,0.95);
-  border-radius:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.6);
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  animation:fadeIn 1s ease;
-}
-h1 {
-  text-align:center;
-  margin-bottom:15px;
-  background: linear-gradient(90deg,#00c6ff,#0072ff);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  font-size:1.8em;
-}
-#chat {
-  background:#1e1e1e;
-  border-radius:12px;
-  padding:15px;
-  flex:1;
-  overflow-y:auto;
-  margin-bottom:15px;
-  scroll-behavior:smooth;
-  max-height:55vh;
-}
-.msg {
-  margin:8px 0;
-  padding:10px 14px;
-  border-radius:12px;
-  max-width:75%;
-  animation:slideUp 0.4s ease;
-  white-space:pre-line;
-}
-.user { background:#0072ff;color:#fff;margin-left:auto;border-bottom-right-radius:2px; }
-.bot { background:#2a2a2a;color:#ddd;margin-right:auto;border-bottom-left-radius:2px; }
-textarea {
-  width:100%;
-  border-radius:12px;
-  padding:12px;
-  border:none;
-  resize:none;
-  outline:none;
-  font-size:1em;
-  margin-bottom:10px;
-  background:#2a2a2a;
-  color:#fff;
-}
-button {
-  margin:5px;
-  padding:12px 18px;
-  border:none;
-  border-radius:12px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-  color:#fff;
-  cursor:pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,114,255,0.5); }
-.quiz-btn { background: linear-gradient(90deg,#ff7e5f,#feb47b); margin:3px; }
-@keyframes fadeIn { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
-@keyframes slideUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-@media(max-width:600px){ h1{font-size:1.4em;} button{padding:10px 12px;font-size:0.9em;} }
+body {font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#eee;margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+#app {width:95%;max-width:1100px;background:rgba(30,30,30,0.95);border-radius:20px;box-shadow:0 8px 25px rgba(0,0,0,0.6);padding:20px;display:flex;flex-direction:column;animation:fadeIn 1s ease;}
+h1 {text-align:center;margin-bottom:15px;background:linear-gradient(90deg,#00c6ff,#0072ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:2em;}
+#chat {background:#1e1e1e;border-radius:12px;padding:15px;flex:1;overflow-y:auto;margin-bottom:15px;scroll-behavior:smooth;max-height:60vh;}
+.msg {margin:8px 0;padding:10px 14px;border-radius:12px;max-width:75%;animation:slideUp 0.4s ease;white-space:pre-line;}
+.user {background:#0072ff;color:#fff;margin-left:auto;border-bottom-right-radius:2px;}
+.bot {background:#2a2a2a;color:#ddd;margin-right:auto;border-bottom-left-radius:2px;}
+textarea {width:100%;border-radius:12px;padding:12px;border:none;resize:none;outline:none;font-size:1em;margin-bottom:10px;background:#2a2a2a;color:#fff;}
+button {margin:5px;padding:12px 18px;border:none;border-radius:12px;background:linear-gradient(90deg,#00c6ff,#0072ff);color:#fff;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+button:hover {transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,114,255,0.5);}
+.quiz-btn {background:linear-gradient(90deg,#ff7e5f,#feb47b);margin:3px;}
+@keyframes fadeIn {from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);}}
+@keyframes slideUp {from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){h1{font-size:1.4em;}button{padding:10px 12px;font-size:0.9em;}}
 </style>
 </head>
 <body>
 <div id="app">
-<h1>Mega Assistant Lycée + Quiz</h1>
+<h1>Mega Assistant Lycée Ultime</h1>
 <div id="chat"></div>
 <textarea id="input" placeholder="Écris ici..."></textarea>
 <div style="text-align:center;">
@@ -94,82 +31,91 @@ button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,114,255,
   <button onclick="toggleConversation()">Mode Discussion: <span id="convStatus">ON</span></button>
   <button onclick="startQuiz()">Lancer Quiz</button>
   <button onclick="showHelp()">Aide</button>
+  <button onclick="toggleSpeech()">Lecture: <span id="speechStatus">OFF</span></button>
+  <button onclick="exportChat()">Exporter Chat</button>
 </div>
 </div>
 <script>
+// --- Variables ---
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const convStatus = document.getElementById("convStatus");
+const speechStatus = document.getElementById("speechStatus");
 let conversationMode = true;
+let speechEnabled = false;
+let conversationHistory = [];
 
-// --- Fiches et connaissances ---
+// --- Fiches complètes lycée ---
 const kb = {
-  maths: {
-    pythagore: "Théorème de Pythagore: triangle rectangle → c²=a²+b²",
-    trinome: "Trinôme ax²+bx+c: Δ=b²-4ac",
-    derivee: "f'(x) = taux de variation de f",
-    integrale: "∫ f(x) dx = aire sous la courbe"
+  maths:{
+    pythagore:"Théorème de Pythagore: c²=a²+b²",
+    trinome:"Trinôme ax²+bx+c: Δ=b²-4ac",
+    derivee:"f'(x) = taux de variation",
+    integrale:"∫ f(x) dx = aire sous la courbe",
+    factorisation:"a²-b²=(a-b)(a+b)"
   },
-  physique: {
-    vitesse: "v=d/t",
-    acceleration: "a=Δv/Δt",
-    newton1: "Un corps reste en mouvement si aucune force",
-    newton2: "F=ma",
-    newton3: "Action = réaction"
+  physique:{
+    vitesse:"v=d/t",
+    acceleration:"a=Δv/Δt",
+    newton1:"Un corps reste en mouvement si aucune force",
+    newton2:"F=ma",
+    newton3:"Action = réaction",
+    energie:"E=mc² ou E=½mv²"
   },
-  svt: {
-    cellule: "Cellule: unité du vivant",
-    adn: "ADN: information génétique",
-    mitose: "Division donnant 2 cellules identiques"
+  svt:{
+    cellule:"Cellule: unité du vivant",
+    adn:"ADN: information génétique",
+    mitose:"Division donnant 2 cellules identiques",
+    photosynthese:"6CO2 + 6H2O → C6H12O6 + 6O2"
   },
-  histoire: {
-    revolution: "Révolution 1789: fin Ancien Régime, droits de l'homme",
-    napoleon: "Napoléon 1804-1815, Code civil",
-    guerre14: "1ère Guerre mondiale 1914-1918"
+  histoire:{
+    revolution:"Révolution 1789: fin Ancien Régime",
+    napoleon:"Napoléon 1804-1815, Code civil",
+    guerre14:"1ère Guerre mondiale 1914-1918",
+    guerre39:"2ème Guerre mondiale 1939-1945"
   },
-  francais: {
-    figures: "Figures de style: métaphore, comparaison...",
-    commentaire: "Commentaire: intro, thèse, arguments, conclusion",
-    conjugaison: "Temps: passé simple, imparfait, conditionnel"
+  francais:{
+    figures:"Figures de style: métaphore, comparaison, allitération...",
+    commentaire:"Intro, thèse, arguments, conclusion",
+    conjugaison:"Temps: passé simple, imparfait, conditionnel"
   },
-  anglais: {
-    greetings: "Hello! Salut, bonjour.",
-    verbs: "to be, to have, to do, to go",
-    present: "I eat, you play, he goes"
+  anglais:{
+    greetings:"Hello! Salut, bonjour.",
+    verbs:"to be, to have, to do, to go",
+    present:"I eat, you play, he goes"
   },
-  philo: {
-    liberte: "Capacité d'agir selon sa volonté",
-    justice: "Principe d'équité",
-    bonheur: "État de satisfaction raisonnable"
+  philo:{
+    liberte:"Capacité d'agir selon sa volonté",
+    justice:"Principe d'équité",
+    bonheur:"État de satisfaction raisonnable"
   }
 };
 
 // --- Réponses sociales ---
-const social = {
-  greetings:["Salut ! Ça va ?","Hey ! Ravi de te voir 👋","Yo ! Tout roule et toi ?"],
-  farewell:["À plus 👋","Bonne journée !","Ciao, à bientôt !"],
-  howareyou:["Ça va nickel 😎","Je vais bien, et toi ?","Tout roule !"],
-  thanks:["Avec plaisir ✨","De rien 😉","Toujours là 👍"]
-};
+const social = { greetings:["Salut ! Ça va ?","Hey ! Ravi de te voir 👋","Yo ! Tout roule !"], farewell:["À plus 👋","Bonne journée !","Ciao!"], howareyou:["Ça va nickel 😎","Je vais bien, et toi ?"], thanks:["Avec plaisir ✨","De rien 😉"] };
 const relances=["Tu veux un exercice ?","Besoin d'un rappel de cours ?","Que veux-tu réviser ?"];
 
-// --- Quiz ---
-const quizData = [
+// --- Quiz dynamiques ---
+const quizData=[
   {q:"Triangle rectangle, côtés 3 et 4, hypothénuse ?", a:["5","6","7"], correct:0},
   {q:"F=ma correspond à ?", a:["Newton 1","Newton 2","Newton 3"], correct:1},
   {q:"ADN signifie ?", a:["Acide désoxyribonucléique","Acide ribonucléique","Chromosome"], correct:0}
 ];
 let quizIndex=0;
 
+// --- Fonctions principales ---
 function addMessage(text,sender){
   const div=document.createElement("div");
   div.className="msg "+sender;
   div.textContent=text;
   chat.appendChild(div);
   chat.scrollTop=chat.scrollHeight;
+  conversationHistory.push({sender,text});
+  if(speechEnabled && sender==="bot") speak(text);
 }
 
 function toggleConversation(){ conversationMode=!conversationMode; convStatus.textContent=conversationMode?"ON":"OFF"; }
+function toggleSpeech(){ speechEnabled=!speechEnabled; speechStatus.textContent=speechEnabled?"ON":"OFF"; }
 
 function detectSocial(msg){
   const l=msg.toLowerCase();
@@ -188,7 +134,10 @@ function handleKnowledge(msg){
 
 function handleCommands(msg){
   if(msg.startsWith("/help")) return "Commandes: /help, /calc [expr], /add [mot]=[réponse]";
-  if(msg.startsWith("/calc")){ try{ return "Résultat: "+eval(msg.replace("/calc","").trim()); }catch{return "Erreur ⚠️";} }
+  if(msg.startsWith("/calc")){
+    try{ return "Résultat: "+eval(msg.replace("/calc","").trim()); }
+    catch{return "Erreur ⚠️"; }
+  }
   if(msg.startsWith("/add")){
     const parts=msg.replace("/add","").split("=");
     if(parts.length===2){ const k=parts[0].trim(); const v=parts[1].trim(); kb.custom=kb.custom||{}; kb.custom[k]=v; return `Ajouté: ${k} → ${v}`; }
@@ -210,7 +159,7 @@ function handleBot(msg){
   if(cmd) return cmd;
   const knowledge=handleKnowledge(msg);
   if(knowledge) return knowledge;
-  return "Je n'ai pas compris, je peux fournir des fiches ou lancer un quiz !";
+  return "Je n'ai pas compris, je peux fournir fiches, calculs ou lancer un quiz !";
 }
 
 function sendMessage(){
@@ -225,10 +174,7 @@ function sendMessage(){
 function showHelp(){ addMessage("Commandes: /help, /calc [expr], /add [mot]=[réponse]. Tu peux aussi taper un mot de cours pour réviser.","bot"); }
 
 // --- Quiz ---
-function startQuiz(){
-  quizIndex=0;
-  askQuiz();
-}
+function startQuiz(){ quizIndex=0; askQuiz(); }
 function askQuiz(){
   if(quizIndex>=quizData.length){ addMessage("Quiz terminé 🎉","bot"); return; }
   const q=quizData[quizIndex];
@@ -255,8 +201,26 @@ input.addEventListener("keydown",e=>{
   if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); }
 });
 
-// --- Message de bienvenue ---
-addMessage("Bienvenue sur Mega Assistant Lycée + Quiz ! Tape /help pour commandes.","bot");
+// --- Lecture vocale ---
+function speak(text){
+  if('speechSynthesis' in window){
+    const utter=new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utter);
+  }
+}
+
+// --- Export chat ---
+function exportChat(){
+  let text="--- Export Chat ---\n";
+  conversationHistory.forEach(m=>{ text+=`${m.sender.toUpperCase()}: ${m.text}\n`; });
+  const blob=new Blob([text],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download="conversation.txt"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+addMessage("Bienvenue sur Mega Assistant Lycée Ultime ! Tape /help pour commandes.","bot");
 </script>
 </body>
 </html>
