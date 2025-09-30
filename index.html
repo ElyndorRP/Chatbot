@@ -1,496 +1,262 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini-assistant — Édition Méga (Amélioré)</title>
-  <meta name="description" content="Assistant local HTML/JS — méga version : multi-conv, édition, TTS, planification, tags, analytics, sauvegardes" />
-  <style>
-    :root{--bg:#051025;--panel:#081427;--muted:#a9c3d6;--accent:#06b6d4;--accent2:#8b5cf6;--card:#071424;--glass:rgba(255,255,255,0.03);--radius:14px;--text:#e6eef8}
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#021122 0%,#07152a 100%);color:var(--text);}    
-    .container{max-width:1400px;margin:16px auto;display:grid;grid-template-columns:280px 1fr 360px;gap:16px;padding:16px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));padding:12px;border-radius:var(--radius);box-shadow:0 10px 40px rgba(0,0,0,0.6)}
-    /* LEFT */
-    .left{display:flex;flex-direction:column;gap:12px}
-    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(180deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800}
-    .conv-list{max-height:64vh;overflow:auto;margin-top:8px;display:flex;flex-direction:column;gap:8px}
-    .conv-item{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;display:flex;justify-content:space-between}
-    .conv-item.active{background:linear-gradient(90deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06));border-color:rgba(6,182,212,0.12)}
-    /* CENTER */
-    .center{display:flex;flex-direction:column;height:82vh}
-    .chat{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;border-radius:10px;background:linear-gradient(180deg, rgba(6,18,32,0.12), rgba(2,6,12,0.06));border:1px solid rgba(255,255,255,0.02)}
-    .msg{max-width:80%;padding:10px 12px;border-radius:12px;line-height:1.4;white-space:pre-wrap}
-    .user{margin-left:auto;background:linear-gradient(180deg,#084d57,#0a6b6e);border:1px solid rgba(255,255,255,0.03)}
-    .bot{background:linear-gradient(180deg,#062038,#06314a);border:1px solid rgba(255,255,255,0.02)}
-    .meta{font-size:12px;color:var(--muted);margin-top:6px}
-    .composer{display:flex;gap:8px;align-items:flex-end;padding-top:10px}
-    textarea{flex:1;min-height:80px;max-height:320px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted);resize:none}
-    /* RIGHT */
-    .right{display:flex;flex-direction:column;gap:12px}
-    .panel{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));border:1px solid rgba(255,255,255,0.02)}
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
-    /* helpers */
-    .row{display:flex;gap:8px;align-items:center}
-    .small{font-size:13px;color:var(--muted)}
-    .hidden{display:none}
-    @media (max-width:1100px){.container{grid-template-columns:1fr;padding:8px}.right{order:3}.left{order:2}.center{order:1;height:70vh}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mega Assistant Lycée + Quiz</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#eee;
+  margin:0;
+  padding:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+#app {
+  width:95%;
+  max-width:1000px;
+  background: rgba(30,30,30,0.95);
+  border-radius:20px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.6);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  animation:fadeIn 1s ease;
+}
+h1 {
+  text-align:center;
+  margin-bottom:15px;
+  background: linear-gradient(90deg,#00c6ff,#0072ff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-size:1.8em;
+}
+#chat {
+  background:#1e1e1e;
+  border-radius:12px;
+  padding:15px;
+  flex:1;
+  overflow-y:auto;
+  margin-bottom:15px;
+  scroll-behavior:smooth;
+  max-height:55vh;
+}
+.msg {
+  margin:8px 0;
+  padding:10px 14px;
+  border-radius:12px;
+  max-width:75%;
+  animation:slideUp 0.4s ease;
+  white-space:pre-line;
+}
+.user { background:#0072ff;color:#fff;margin-left:auto;border-bottom-right-radius:2px; }
+.bot { background:#2a2a2a;color:#ddd;margin-right:auto;border-bottom-left-radius:2px; }
+textarea {
+  width:100%;
+  border-radius:12px;
+  padding:12px;
+  border:none;
+  resize:none;
+  outline:none;
+  font-size:1em;
+  margin-bottom:10px;
+  background:#2a2a2a;
+  color:#fff;
+}
+button {
+  margin:5px;
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:#fff;
+  cursor:pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,114,255,0.5); }
+.quiz-btn { background: linear-gradient(90deg,#ff7e5f,#feb47b); margin:3px; }
+@keyframes fadeIn { from{opacity:0; transform:scale(0.95);} to{opacity:1; transform:scale(1);} }
+@keyframes slideUp { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+@media(max-width:600px){ h1{font-size:1.4em;} button{padding:10px 12px;font-size:0.9em;} }
+</style>
 </head>
 <body>
-  <div class="container">
-    <!-- LEFT: conversations -->
-    <div class="card left">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="logo">AI</div>
-        <div>
-          <div style="font-weight:700">Mini-assistant Méga</div>
-          <div class="small">Offline / local</div>
-        </div>
-      </div><div style="margin-top:10px" class="row">
-    <button id="btnNew" class="chip">+ Nouvelle</button>
-    <button id="btnImport" class="chip">Importer</button>
-    <button id="btnExportAll" class="chip">Exporter tout</button>
-    <button id="btnLoadPack" class="chip">Charger pack scolaire</button>
-    <button id="btnExportKB" class="chip">Exporter KB</button>
-  </div>
-
-  <div style="margin-top:10px">
-    <input id="convSearch" type="text" placeholder="Rechercher conversations..." style="width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--muted)" />
-  </div>
-
-  <div class="conv-list" id="convList"></div>
-
-  <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-    <div class="small">Conversations: <span id="nbConv">0</span></div>
-    <div class="small">Messages: <span id="nbMsg">0</span></div>
-  </div>
+<div id="app">
+<h1>Mega Assistant Lycée + Quiz</h1>
+<div id="chat"></div>
+<textarea id="input" placeholder="Écris ici..."></textarea>
+<div style="text-align:center;">
+  <button onclick="sendMessage()">Envoyer</button>
+  <button onclick="toggleConversation()">Mode Discussion: <span id="convStatus">ON</span></button>
+  <button onclick="startQuiz()">Lancer Quiz</button>
+  <button onclick="showHelp()">Aide</button>
 </div>
-
-<!-- CENTER: chat -->
-<div class="card center">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <div>
-      <div class="small">Conversation: <strong id="convTitle">— aucune —</strong></div>
-      <div class="small">Commandes: /help /about /clear /calc /schedule (et ajoute:mot=>réponse)</div>
-    </div>
-    <div class="row">
-      <button id="btnRename" class="chip">Renommer</button>
-      <button id="btnDuplicate" class="chip">Dupliquer</button>
-      <button id="btnDelete" class="chip">Supprimer</button>
-    </div>
-  </div>
-
-  <div id="chat" class="chat"></div>
-
-  <div class="composer">
-    <textarea id="input" placeholder="Écris un message, /help pour l'aide... (Shift+Enter = nouvelle ligne)"></textarea>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button id="send" class="chip">Envoyer</button>
-      <button id="btnClear" class="chip">/clear</button>
-    </div>
-  </div>
-
-  <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
-    <div class="small">Raccourci: Ctrl+N nouvelle conv, Ctrl+S exporter</div>
-    <div class="small">Stockage: <span id="usage">—</span></div>
-  </div>
 </div>
+<script>
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const convStatus = document.getElementById("convStatus");
+let conversationMode = true;
 
-<!-- RIGHT: tools -->
-<div class="card right">
-  <div class="panel">
-    <strong>Outils rapides</strong>
-    <div style="margin-top:8px" class="chips">
-      <div class="chip" data-text="Bonjour">Bonjour</div>
-      <div class="chip" data-text="Raconte une blague">Blague</div>
-      <div class="chip" data-text="Donne-moi une idée de déjeuner">Déjeuner</div>
-    </div>
-    <div style="margin-top:10px" class="row">
-      <button id="ttsToggle" class="chip">TTS: ON</button>
-      <button id="exportConv" class="chip">Exporter conv</button>
-    </div>
-  </div>
+// --- Fiches et connaissances ---
+const kb = {
+  maths: {
+    pythagore: "Théorème de Pythagore: triangle rectangle → c²=a²+b²",
+    trinome: "Trinôme ax²+bx+c: Δ=b²-4ac",
+    derivee: "f'(x) = taux de variation de f",
+    integrale: "∫ f(x) dx = aire sous la courbe"
+  },
+  physique: {
+    vitesse: "v=d/t",
+    acceleration: "a=Δv/Δt",
+    newton1: "Un corps reste en mouvement si aucune force",
+    newton2: "F=ma",
+    newton3: "Action = réaction"
+  },
+  svt: {
+    cellule: "Cellule: unité du vivant",
+    adn: "ADN: information génétique",
+    mitose: "Division donnant 2 cellules identiques"
+  },
+  histoire: {
+    revolution: "Révolution 1789: fin Ancien Régime, droits de l'homme",
+    napoleon: "Napoléon 1804-1815, Code civil",
+    guerre14: "1ère Guerre mondiale 1914-1918"
+  },
+  francais: {
+    figures: "Figures de style: métaphore, comparaison...",
+    commentaire: "Commentaire: intro, thèse, arguments, conclusion",
+    conjugaison: "Temps: passé simple, imparfait, conditionnel"
+  },
+  anglais: {
+    greetings: "Hello! Salut, bonjour.",
+    verbs: "to be, to have, to do, to go",
+    present: "I eat, you play, he goes"
+  },
+  philo: {
+    liberte: "Capacité d'agir selon sa volonté",
+    justice: "Principe d'équité",
+    bonheur: "État de satisfaction raisonnable"
+  }
+};
 
-  <div class="panel">
-    <strong>Planificateur</strong>
-    <div style="margin-top:8px" class="small">Planifie un envoi: <code>/schedule 2025-12-31T23:59:00 Ton message</code></div>
-    <div style="margin-top:8px" class="small">Messages planifiés: <ul id="schedList"></ul></div>
-  </div>
+// --- Réponses sociales ---
+const social = {
+  greetings:["Salut ! Ça va ?","Hey ! Ravi de te voir 👋","Yo ! Tout roule et toi ?"],
+  farewell:["À plus 👋","Bonne journée !","Ciao, à bientôt !"],
+  howareyou:["Ça va nickel 😎","Je vais bien, et toi ?","Tout roule !"],
+  thanks:["Avec plaisir ✨","De rien 😉","Toujours là 👍"]
+};
+const relances=["Tu veux un exercice ?","Besoin d'un rappel de cours ?","Que veux-tu réviser ?"];
 
-  <div class="panel">
-    <strong>Analytics</strong>
-    <canvas id="chart" width="300" height="140" style="width:100%;height:140px;background:rgba(255,255,255,0.01);border-radius:8px"></canvas>
-    <div style="margin-top:8px" class="small">Messages total: <span id="statTotal">0</span></div>
-  </div>
+// --- Quiz ---
+const quizData = [
+  {q:"Triangle rectangle, côtés 3 et 4, hypothénuse ?", a:["5","6","7"], correct:0},
+  {q:"F=ma correspond à ?", a:["Newton 1","Newton 2","Newton 3"], correct:1},
+  {q:"ADN signifie ?", a:["Acide désoxyribonucléique","Acide ribonucléique","Chromosome"], correct:0}
+];
+let quizIndex=0;
 
-  <div class="panel">
-    <strong>Paramètres</strong>
-    <div style="margin-top:8px" class="row">
-      <button id="btnExplain" class="chip">Explications: ON</button>
-      <button id="btnImportKB" class="chip">Importer KB</button>
-    </div>
-    <div style="margin-top:8px" class="small">Format d'import KB: { "kb": { "mot clé": ["rép1","rép2"] } }</div>
-  </div>
-</div>
+function addMessage(text,sender){
+  const div=document.createElement("div");
+  div.className="msg "+sender;
+  div.textContent=text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
 
-  </div>  <input id="fileImport" type="file" accept="application/json" class="hidden" />
-  <input id="fileKB" type="file" accept="application/json" class="hidden" />  <script>
-    // ---------- Mega assistant script (amélioré) ----------
-    const $ = id => document.getElementById(id);
+function toggleConversation(){ conversationMode=!conversationMode; convStatus.textContent=conversationMode?"ON":"OFF"; }
 
-    // State structure stored in localStorage under key 'mega_assistant'
-    const STORAGE_KEY = 'mega_assistant_v1';
-    let state = {conversations:[], kb:{}, scheduled:[], meta:{created: new Date().toISOString()}};
+function detectSocial(msg){
+  const l=msg.toLowerCase();
+  if(/(salut|yo|hey|bonjour)/.test(l)) return "greetings";
+  if(/(bye|ciao|à plus|au revoir)/.test(l)) return "farewell";
+  if(/(ça va|comment tu vas)/.test(l)) return "howareyou";
+  if(/(merci|thanks)/.test(l)) return "thanks";
+  return null;
+}
 
-    // Knowledge packs (starter) — ajouté pour répondre au niveau seconde+
-    const KNOWLEDGE_PACKS = {
-      'scolaire_v1': {
-        'pythagore': [
-          "Théorème de Pythagore: Dans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés. Si c est l\'hypoténuse et a,b les autres côtés: c² = a² + b².",
-          "Exemple: triangle rectangle avec côtés 3 et 4 → hypoténuse = √(3²+4²)=5."
-        ],
-        'thales': [
-          "Théorème de Thalès (version classique): Si deux droites sont parallèles, alors elles interceptent sur deux droites sécantes des segments proportionnels. Utilisé pour calculer des longueurs par proportions."
-        ],
-        'equation du premier degré': [
-          "Résolution d'une équation ax + b = c : isoler x → x = (c - b) / a (si a ≠ 0). Exemple: 2x+3=7 → x=(7-3)/2=2."
-        ],
-        'developper factoriser': [
-          "Développer et factoriser: (a+b)² = a² + 2ab + b²; factoriser  ax+ay = a(x+y)." 
-        ],
-        'fonction affine': [
-          "Fonction affine: f(x)=ax+b. Représentation: droite. a est le coefficient directeur (pente), b l\'ordonnée à l\'origine."] ,
-        'derivee (definition)': [
-          "Dérivée (définition intuitive): la dérivée d\'une fonction en un point donne la pente de la tangente en ce point. Notation f'(x) ou df/dx. (Approfondissement possible à la demande.)"
-        ],
-        'lois de newton': [
-          "Lois de Newton (résumé): 1) Inertie: un corps reste en repos ou en mouvement uniforme si aucune force nette n\'agit. 2) F = m * a. 3) Action / réaction: à toute action correspond une réaction égale et opposée."
-        ],
-        'cinematique (mouv constant accel)': [
-          "Mouvements rectilignes à accélération constante: v = v0 + a t;  x = x0 + v0 t + 1/2 a t². Utile pour résoudre problèmes de chute libre, lancement, etc."
-        ],
-        'loi d\'ohm': [
-          "Loi d'Ohm: V = R × I (tension = résistance × intensité). Permet de calculer courant, tension ou résistance si les deux autres sont connus." 
-        ],
-        'atome et elements': [
-          "Atome: constitué d\'un noyau (protons, neutrons) et d\'électrons. Nombre d\'atomique = nombre de protons. Masse molaire et notion de mole en chimie sont utiles pour les réactions." 
-        ],
-        'mole': [
-          "La mole: quantité de matière contenant 6.022×10^23 entités (constante d'Avogadro). Masse molaire exprimée en g/mol permet de convertir masse ↔ moles." 
-        ],
-        'ph': [
-          "pH: mesure d\'acidité d\'une solution. pH = -log10([H+]). pH < 7 acide, pH = 7 neutre, pH > 7 basique."
-        ],
-        'photosynthese': [
-          "Photosynthèse: processus par lequel les plantes transforment CO₂ + H₂O (avec lumière) en glucose + O₂, réalisé par les chloroplastes." 
-        ],
-        'mitose': [
-          "Mitose: division cellulaire donnant deux cellules filles identiques; la méiose aboutit à quatre cellules haploïdes (reproduction sexuée)."
-        ],
-        'histoire: revolution francaise (résumé)': [
-          "Révolution française (1789): renversement de la monarchie absolue, prise de la Bastille (14 juillet 1789), déclaration des droits de l'homme et du citoyen, période de grandes transformations politiques et sociales." 
-        ],
-        'anglais: present simple usage': [
-          "Present simple en anglais: utilisé pour des vérités générales et habitudes. Forme: I/you/we/they + base verbale; he/she/it + s. Ex: I play, he plays." 
-        ],
-        'informatique: complexite': [
-          "Complexité algorithmique (intuitive): mesure du temps (ou de la mémoire) nécessaire en fonction de la taille de l\'entrée. O(n), O(n²), O(log n) sont des notations fréquentes." 
-        ],
-        'definition:energie': [
-          "Énergie: capacité à produire un travail. Unités: joule (J). Différentes formes: cinétique, potentielle, chimique, etc." 
-        ]
-      }
-    };
+function handleKnowledge(msg){
+  const l=msg.toLowerCase();
+  for(const s in kb){ for(const k in kb[s]){ if(l.includes(k)) return kb[s][k]; } }
+  return null;
+}
 
-    // Merge starter pack into default KB if no KB present
-    const DEFAULT_KB = {...KNOWLEDGE_PACKS.scolaire_v1};
+function handleCommands(msg){
+  if(msg.startsWith("/help")) return "Commandes: /help, /calc [expr], /add [mot]=[réponse]";
+  if(msg.startsWith("/calc")){ try{ return "Résultat: "+eval(msg.replace("/calc","").trim()); }catch{return "Erreur ⚠️";} }
+  if(msg.startsWith("/add")){
+    const parts=msg.replace("/add","").split("=");
+    if(parts.length===2){ const k=parts[0].trim(); const v=parts[1].trim(); kb.custom=kb.custom||{}; kb.custom[k]=v; return `Ajouté: ${k} → ${v}`; }
+    return "Format: /add mot=réponse";
+  }
+  return null;
+}
 
-    // load/save
-    function load(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(raw) state = JSON.parse(raw);
-        if(!state.kb || Object.keys(state.kb||{}).length===0) state.kb = {...DEFAULT_KB};
-      }catch(e){ console.error('load error', e); state = {conversations:[], kb:DEFAULT_KB, scheduled:[], meta:{}}; }
-      refreshUI();
+function handleBot(msg){
+  if(conversationMode){
+    const intent=detectSocial(msg);
+    if(intent){
+      let r=social[intent][Math.floor(Math.random()*social[intent].length)];
+      if(Math.random()<0.4) r+=" "+relances[Math.floor(Math.random()*relances.length)];
+      return r;
     }
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateUsage(); }
+  }
+  const cmd=handleCommands(msg);
+  if(cmd) return cmd;
+  const knowledge=handleKnowledge(msg);
+  if(knowledge) return knowledge;
+  return "Je n'ai pas compris, je peux fournir des fiches ou lancer un quiz !";
+}
 
-    function updateUsage(){ try{ const size = new Blob([localStorage.getItem(STORAGE_KEY) || '']).size; $('usage').textContent = Math.round(size/1024)+' KB'; }catch(e){ $('usage').textContent='—' } }
+function sendMessage(){
+  const text=input.value.trim();
+  if(!text) return;
+  addMessage(text,"user");
+  input.value="";
+  const resp=handleBot(text);
+  setTimeout(()=>addMessage(resp,"bot"),300);
+}
 
-    // conversation helpers (unchanged)
-    function createConv(title='Conversation'){ const conv = {id:'c_'+Math.random().toString(36).slice(2,9), title, created:new Date().toISOString(), messages:[]}; state.conversations.unshift(conv); save(); renderConvs(); return conv; }
-    function duplicateConv(id){ const src = state.conversations.find(c=>c.id===id); if(!src) return; const copy = JSON.parse(JSON.stringify(src)); copy.id='c_'+Math.random().toString(36).slice(2,9); copy.title += ' (copie)'; copy.created=new Date().toISOString(); state.conversations.unshift(copy); save(); renderConvs(); }
-    function deleteConv(id){ state.conversations = state.conversations.filter(c=>c.id!==id); if(activeConvId===id) activeConvId = state.conversations[0]?.id || null; save(); renderConvs(); renderActive(); }
-    function renameConv(id,newTitle){ const c=state.conversations.find(x=>x.id===id); if(c){ c.title=newTitle; save(); renderConvs(); renderActive(); } }
+function showHelp(){ addMessage("Commandes: /help, /calc [expr], /add [mot]=[réponse]. Tu peux aussi taper un mot de cours pour réviser.","bot"); }
 
-    // active conv
-    let activeConvId = null;
-    function setActive(id){ activeConvId = id; renderConvs(); renderActive(); }
+// --- Quiz ---
+function startQuiz(){
+  quizIndex=0;
+  askQuiz();
+}
+function askQuiz(){
+  if(quizIndex>=quizData.length){ addMessage("Quiz terminé 🎉","bot"); return; }
+  const q=quizData[quizIndex];
+  addMessage("Quiz: "+q.q,"bot");
+  q.a.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="quiz-btn";
+    btn.textContent=opt;
+    btn.onclick=()=> checkQuiz(i);
+    chat.appendChild(btn);
+    chat.scrollTop=chat.scrollHeight;
+  });
+}
+function checkQuiz(i){
+  const q=quizData[quizIndex];
+  if(i===q.correct) addMessage("✅ Correct","bot");
+  else addMessage("❌ Incorrect, bonne réponse: "+q.a[q.correct],"bot");
+  quizIndex++;
+  askQuiz();
+}
 
-    // render conv list
-    function renderConvs(filter=''){
-      const el = $('convList'); el.innerHTML='';
-      const list = state.conversations.filter(c=>c.title.toLowerCase().includes(filter.toLowerCase()) || c.messages.some(m=>m.text.toLowerCase().includes(filter.toLowerCase())));
-      for(const c of list){
-        const div = document.createElement('div'); div.className='conv-item'+(c.id===activeConvId?' active':'');
-        div.innerHTML = `<div><strong>${escapeHtml(c.title)}</strong><div class='small'>${c.messages.length} msg • ${new Date(c.created).toLocaleString()}</div></div>`;
-        div.addEventListener('click', ()=> setActive(c.id));
-        el.appendChild(div);
-      }
-      $('nbConv').textContent = state.conversations.length; $('nbMsg').textContent = state.conversations.reduce((s,c)=>s+c.messages.length,0);
-    }
+// --- Clavier Entrée ---
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
 
-    // render chat
-    function renderActive(){
-      $('convTitle').textContent = activeConvId ? (state.conversations.find(c=>c.id===activeConvId).title) : '— aucune —';
-      const chat = $('chat'); chat.innerHTML='';
-      if(!activeConvId) return;
-      const conv = state.conversations.find(c=>c.id===activeConvId);
-      for(const m of conv.messages){
-        const d = document.createElement('div'); d.className = 'msg ' + (m.role==='user'?'user':'bot');
-        d.innerHTML = formatMessage(m.text) + `<div class='meta'>${new Date(m.time).toLocaleString()}</div>`;
-        // actions
-        const actions = document.createElement('div'); actions.style.marginTop='6px'; actions.className='small';
-        actions.innerHTML = `<button data-id='${m.id}' class='edit'>Edit</button> <button data-id='${m.id}' class='del'>Delete</button> <button data-id='${m.id}' class='react'>👍</button>`;
-        d.appendChild(actions);
-        chat.appendChild(d);
-      }
-      chat.scrollTop = chat.scrollHeight;
-      attachMessageActions();
-    }
-
-    function appendMessage(role,text,opts={}){
-      if(!activeConvId) { const c = createConv('Conversation auto'); activeConvId=c.id; }
-      const conv = state.conversations.find(c=>c.id===activeConvId);
-      const msg = {id:'m_'+Math.random().toString(36).slice(2,9), role, text, time: (opts.time || new Date().toISOString()), tags: opts.tags||[]};
-      conv.messages.push(msg); save(); renderActive(); renderConvs();
-    }
-
-    // basics: escape and format
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function formatMessage(s){ // lightweight markdown: **bold**, *italic*, `code`
-      let t = escapeHtml(s);
-      t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      t = t.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-      t = t.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-      t = t.replace(/\n/g, '<br/>');
-      return t;
-    }
-
-    // --- improved reply engine ---
-    let explainMode = true; // if true, answers include short explanations / méthodes
-
-    // simple KB lookup with token overlap scoring
-    function answerFromKB(msg){
-      const q = msg.toLowerCase();
-      let bestKey = null; let bestScore = 0;
-      const qTokens = q.split(/[^\p{L}\d]+/u).filter(Boolean);
-      for(const key of Object.keys(state.kb||{})){
-        const keyLow = key.toLowerCase();
-        // exact or substring match
-        if(q.includes(keyLow) || keyLow.includes(q)) return sample(state.kb[key]);
-        // token overlap
-        const keyTokens = keyLow.split(/[^\p{L}\d]+/u).filter(Boolean);
-        const overlap = qTokens.filter(t=> keyTokens.includes(t)).length;
-        if(overlap>bestScore){ bestScore = overlap; bestKey = key; }
-      }
-      if(bestScore>0 && bestKey) return sample(state.kb[bestKey]);
-      return null;
-    }
-
-    // detect math / equation and attempt to solve with steps for basic cases
-    function isMathQuery(text){ return /[0-9xX=+\-*/^()√]/.test(text) && (/\d/.test(text)); }
-
-    function solveLinearEquation(eq){
-      // normalize
-      let s = eq.replace(/\s+/g,'').replace(/−/g,'-');
-      if(!s.includes('=')) return null;
-      const [L,R] = s.split('=');
-      const parse = (expr)=>{
-        // split into terms +/-, handle signs
-        const terms = expr.match(/[+-]?[^+-]+/g) || [];
-        let coef=0, constant=0;
-        for(const t of terms){
-          if(t.includes('x')||t.includes('X')){
-            const v = t.replace(/x|X/g,'');
-            if(v===''||v==='+') coef += 1; else if(v==='-') coef += -1; else coef += parseFloat(v);
-          } else {
-            constant += parseFloat(t);
-          }
-        }
-        return {coef, constant};
-      };
-      const left = parse(L); const right = parse(R);
-      const a = left.coef - right.coef; // bring x terms to left
-      const b = right.constant - left.constant; // move constants to right
-      if(a===0){ if(b===0) return {steps:['Infinité de solutions'], result:'Infinité de solutions'}; else return {steps:['Aucune solution'], result:'Aucune solution'} }
-      const x = b / a;
-      const steps = [
-        `Équation: ${eq}`,
-        `Regrouper les termes en x d\'un côté: coeff x = ${a}`,
-        `Regrouper les constantes de l\'autre côté: valeur = ${b}`,
-        `Solution: x = (${b}) / (${a}) = ${x}`
-      ];
-      return {steps, result: x};
-    }
-
-    function solveQuadraticEquation(eq){
-      // tentative basique: ax^2 + bx + c = 0
-      let s = eq.replace(/\s+/g,'').replace(/−/g,'-');
-      if(s.includes('=')){ const parts=s.split('='); if(parts[1] !== '0') s = parts[0] + '-(' + parts[1] + ')'; }
-      try{
-        // extract a
-        const aMatch = s.match(/([+-]?\d*\.?\d*)x\^2/);
-        const bMatch = s.match(/([+-]?\d*\.?\d*)x(?!\^)/);
-        const cMatch = s.replace(/.*x\^2/,'').replace(/.*x(?!\^)/,'');
-        const a = aMatch ? (aMatch[1]===''||aMatch[1]==='+'?1:(aMatch[1]==='-'?-1:parseFloat(aMatch[1]))) : 0;
-        const b = bMatch ? (bMatch[1]===''||bMatch[1]==='+'?1:(bMatch[1]==='-'?-1:parseFloat(bMatch[1]))) : 0;
-        // constant: try to find standalone numbers (last number)
-        const cNum = (s.match(/([+-]?\d+(?:\.\d+)?)(?![^x\d])/g) || []).filter(n=> !s.includes(n+'x') && !s.includes(n+'x^2'));
-        const c = cNum.length? parseFloat(cNum[cNum.length-1]) : 0;
-        if(a===0) return null;
-        const delta = b*b - 4*a*c;
-        if(delta < 0) return {steps:[`a=${a}, b=${b}, c=${c}`, `Δ = ${delta} < 0 → pas de solution réelle`], result: 'Pas de solution réelle'};
-        const x1 = (-b + Math.sqrt(delta))/(2*a);
-        const x2 = (-b - Math.sqrt(delta))/(2*a);
-        const steps = [`a=${a}, b=${b}, c=${c}`, `Δ = b² - 4ac = ${delta}`, `x₁ = ${x1}`, `x₂ = ${x2}`];
-        return {steps, result: [x1,x2]};
-      }catch(e){ return null; }
-    }
-
-    function replyTo(text){
-      const msg = text.trim(); const lower = msg.toLowerCase();
-      if(lower==='/help') return helpText();
-      if(lower==='/about') return 'Assistant Méga — tout reste local.';
-      if(lower.startsWith('/calc')){ const exp = text.slice(5).trim(); return calc(exp); }
-      if(lower.startsWith('/schedule')){ const parts = text.split(' '); if(parts.length<3) return 'Format: /schedule ISO_DATETIME ton message'; const when = parts[1]; const content = parts.slice(2).join(' '); scheduleMessage(when, content); return 'Planifié: ' + content + ' à ' + when; }
-      if(lower.startsWith('ajoute:')){ const b = text.slice(7); const parts = b.split('=>'); if(parts.length===2){ const k=parts[0].trim().toLowerCase(); const r=parts[1].trim(); if(!state.kb[k]) state.kb[k]=[]; state.kb[k].push(r); save(); return 'Appris: '+k; } return "Format invalide: ajoute:mot=>réponse"; }
-
-      // math detection
-      if(isMathQuery(msg)){
-        // try linear
-        const lin = solveLinearEquation(msg);
-        if(lin){ if(explainMode && lin.steps) return lin.steps.join('\n'); return 'x = ' + lin.result; }
-        // try quadratic
-        const quad = solveQuadraticEquation(msg);
-        if(quad){ if(explainMode && quad.steps) return quad.steps.join('\n'); return 'Solutions: ' + String(quad.result); }
-        // fallback to numeric calc
-        try{ const c = calc(msg); return c; }catch(e){}
-      }
-
-      // kb lookup
-      const kbAnswer = answerFromKB(msg);
-      if(kbAnswer) return (explainMode ? (kbAnswer + '\n\nTape "ajoute:mot=>réponse" pour enrichir la KB.') : kbAnswer);
-
-      // programming hint
-      if(lower.includes('programme') || lower.includes('écris un') || lower.includes('code')){
-        return "Je peux écrire des snippets en JS/HTML/CSS. Dis-moi le langage et la fonctionnalité souhaitée (ex: 'écris un script JS qui trie un tableau').";
-      }
-
-      return "Désolé, je ne sais pas encore répondre — utilise 'ajoute:mot=>réponse' pour m'enseigner, ou demande 'Charger pack scolaire' pour pré-charger des notions.";
-    }
-
-    function helpText(){ return 'Commandes: /help /about /clear /calc /schedule YYYY-MM-DDTHH:MM:SS message; Enseigner: ajoute:mot=>réponse'; }
-
-    function sample(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-    // calculator (safe-ish)
-    function calc(expr){ try{ const safe = expr.replace(/[^0-9+\-*/().\^ %]/g,''); const js = safe.replace(/\^/g,'**'); const val = Function('return ('+js+')')(); return 'Résultat: '+val; }catch(e){ return 'Erreur calcul: '+e.message; } }
-
-    // scheduled messages
-    function scheduleMessage(iso, text){ const job = {id:'s_'+Math.random().toString(36).slice(2,9), time:iso, text, convId: activeConvId}; state.scheduled.push(job); save(); renderScheduled(); }
-    function renderScheduled(){ const el = $('schedList'); el.innerHTML=''; for(const s of state.scheduled){ const li = document.createElement('li'); li.textContent = `${s.time} → ${s.text} (${s.convId||'no conv'})`; el.appendChild(li); } }
-    setInterval(()=>{ // check scheduled
-      const now = new Date(); const toRun = state.scheduled.filter(s=> new Date(s.time) <= now);
-      for(const s of toRun){ if(s.convId) { const prevActive = activeConvId; activeConvId = s.convId; appendMessage('bot', s.text); activeConvId = prevActive; } else { appendMessage('bot', s.text); } state.scheduled = state.scheduled.filter(x=>x.id!==s.id); save(); renderScheduled(); }
-    }, 2000);
-
-    // attach message actions
-    function attachMessageActions(){ document.querySelectorAll('.msg .edit').forEach(b=> b.addEventListener('click', e=>{ const id = e.target.dataset.id; editMessage(id); })); document.querySelectorAll('.msg .del').forEach(b=> b.addEventListener('click', e=>{ const id = e.target.dataset.id; deleteMessage(id); })); document.querySelectorAll('.msg .react').forEach(b=> b.addEventListener('click', e=>{ const id = e.target.dataset.id; reactMessage(id); })); }
-
-    function findMessage(id){ for(const c of state.conversations){ const m = c.messages.find(x=>x.id===id); if(m) return {conv:c, msg:m}; } return null; }
-    function editMessage(id){ const found = findMessage(id); if(!found) return; const newText = prompt('Modifier le message', found.msg.text); if(newText!=null){ found.msg.text = newText; save(); renderActive(); } }
-    function deleteMessage(id){ const found = findMessage(id); if(!found) return; found.conv.messages = found.conv.messages.filter(x=>x.id!==id); save(); renderActive(); renderConvs(); }
-    function reactMessage(id){ const found = findMessage(id); if(!found) return; found.msg.reactions = (found.msg.reactions||0)+1; save(); renderActive(); }
-
-    // append bot response + TTS
-    function appendBotResponse(text){ appendMessage('bot', text); if(ttsEnabled) speak(text); }
-
-    // TTS
-    let ttsEnabled = true; function speak(text){ if(!('speechSynthesis' in window)) return; const u = new SpeechSynthesisUtterance(text); u.lang='fr-FR'; window.speechSynthesis.speak(u); }
-
-    // export/import
-    function exportAll(){ const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mega_assistant_export_'+(new Date().toISOString())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-    function exportConv(){ if(!activeConvId) return alert('Aucune conversation active'); const conv = state.conversations.find(c=>c.id===activeConvId); const blob = new Blob([JSON.stringify(conv, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(conv.title||'conversation')+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-
-    function exportKB(){ const blob = new Blob([JSON.stringify({kb: state.kb}, null, 2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='mega_assistant_kb_'+(new Date().toISOString())+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-
-    function importFile(file){ if(!file) return; const r=new FileReader(); r.onload = e=>{ try{ const obj=JSON.parse(e.target.result); if(obj.conversations||obj.kb){ // whole state
-          if(obj.conversations) state.conversations = obj.conversations.concat(state.conversations);
-          if(obj.kb) state.kb = {...state.kb,...obj.kb};
-          save(); renderConvs(); renderActive(); alert('Import OK');
-        } else if(obj.title && obj.messages){ // single conv
-          obj.id='c_'+Math.random().toString(36).slice(2,9); state.conversations.unshift(obj); save(); renderConvs(); alert('Conversation importée');
-        } else alert('Format non reconnu'); }catch(err){ alert('Erreur import: '+err.message); } };
-      r.readAsText(file);
-    }
-
-    function importKB(file){ if(!file) return; const r=new FileReader(); r.onload = e=>{ try{ const obj=JSON.parse(e.target.result); if(obj.kb){ state.kb = {...state.kb,...obj.kb}; save(); renderConvs(); renderActive(); alert('KB importée'); } else alert('Format KB non reconnu'); }catch(err){ alert('Erreur import KB: '+err.message); } };
-      r.readAsText(file);
-    }
-
-    // search messages global
-    function searchAll(q){ const res=[]; for(const c of state.conversations){ for(const m of c.messages){ if(m.text.toLowerCase().includes(q.toLowerCase())) res.push({conv:c.title, time:m.time, text:m.text}); } } return res; }
-
-    // small analytics chart
-    function drawChart(){ const canvas = $('chart'); const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); const counts = state.conversations.map(c=>c.messages.length); const total = counts.reduce((s,n)=>s+n,0); $('statTotal').textContent = total; if(counts.length===0) return; const w = canvas.width, h=canvas.height; const max = Math.max(...counts); const barW = Math.floor(w / counts.length) - 4; counts.forEach((v,i)=>{ const x = 4 + i*(barW+4); const barH = Math.round((v/max)*(h-20)); ctx.fillStyle = 'rgba(6,182,212,0.8)'; ctx.fillRect(x, h-10-barH, barW, barH); ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.fillText(v, x+4, h-12-barH); }); }
-
-    // knowledge pack loader
-    function loadKnowledgePack(name){ if(!KNOWLEDGE_PACKS[name]) return alert('Pack inconnu'); state.kb = {...state.kb, ...KNOWLEDGE_PACKS[name]}; save(); alert('Pack '+name+' chargé dans la KB'); }
-
-    // UI wiring
-    $('btnNew').addEventListener('click', ()=>{ const t = prompt('Titre'); if(t) { const c=createConv(t); setActive(c.id); } });
-    $('btnExportAll').addEventListener('click', exportAll);
-    $('btnImport').addEventListener('click', ()=> $('fileImport').click());
-    $('fileImport').addEventListener('change', e=> importFile(e.target.files[0]));
-    $('convSearch').addEventListener('input', e=> renderConvs(e.target.value));
-
-    $('btnLoadPack').addEventListener('click', ()=> loadKnowledgePack('scolaire_v1'));
-    $('btnExportKB').addEventListener('click', exportKB);
-
-    $('send').addEventListener('click', ()=>{ const text = $('input').value.trim(); if(!text) return; appendMessage('user', text); $('input').value=''; const r = replyTo(text); if(r) setTimeout(()=> appendBotResponse(r), 300+Math.random()*600); });
-    $('btnClear').addEventListener('click', ()=>{ if(!activeConvId) return; if(confirm('Effacer conversation ?')){ const c=state.conversations.find(x=>x.id===activeConvId); c.messages=[]; save(); renderActive(); renderConvs(); } });
-    $('btnRename').addEventListener('click', ()=>{ if(!activeConvId) return; const t = prompt('Nouveau titre', state.conversations.find(c=>c.id===activeConvId).title); if(t) renameConv(activeConvId, t); });
-    $('btnDuplicate').addEventListener('click', ()=>{ if(!activeConvId) return duplicateConv(activeConvId); });
-    $('btnDelete').addEventListener('click', ()=>{ if(!activeConvId) return; if(confirm('Supprimer conversation ?')) deleteConv(activeConvId); });
-    document.querySelectorAll('.chip[data-text]').forEach(ch=> ch.addEventListener('click', e=> { $('input').value = e.target.dataset.text; $('input').focus(); }));
-    $('ttsToggle').addEventListener('click', ()=>{ ttsEnabled = !ttsEnabled; $('ttsToggle').textContent = 'TTS: ' + (ttsEnabled ? 'ON':'OFF'); });
-    $('exportConv').addEventListener('click', exportConv);
-
-    // explain toggle and KB import button
-    $('btnExplain').addEventListener('click', ()=>{ explainMode = !explainMode; $('btnExplain').textContent = 'Explications: ' + (explainMode?'ON':'OFF'); });
-    $('btnImportKB').addEventListener('click', ()=> $('fileKB').click());
-    $('fileKB').addEventListener('change', e=> importKB(e.target.files[0]));
-
-    // keyboard
-    document.addEventListener('keydown', e=>{
-      if(e.ctrlKey && e.key.toLowerCase()==='n'){ e.preventDefault(); const c=createConv('Nouvelle conversation'); setActive(c.id); }
-      if(e.ctrlKey && e.key.toLowerCase()==='s'){ e.preventDefault(); exportConv(); }
-    });
-
-    // init
-    load(); if(state.conversations.length===0){ const c=createConv('Conversation exemple'); activeConvId=c.id; appendBotResponse('Bienvenue — tape /help pour commencer. Tu peux aussi cliquer sur "Charger pack scolaire" pour pré-charger des notions de niveau seconde.'); }
-    renderConvs(); renderActive(); renderScheduled(); drawChart(); setInterval(drawChart, 3000);
-
-    // expose for debugging
-    window.__megaAssistant = {state, save, createConv, appendMessage, loadKnowledgePack};
-
-    // helper: refresh UI
-    function refreshUI(){ renderConvs(); renderActive(); renderScheduled(); updateUsage(); }
-  </script></body>
-  </html>
+// --- Message de bienvenue ---
+addMessage("Bienvenue sur Mega Assistant Lycée + Quiz ! Tape /help pour commandes.","bot");
+</script>
+</body>
+</html>
